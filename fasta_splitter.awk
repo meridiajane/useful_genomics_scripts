@@ -1,0 +1,29 @@
+#!/bin/awk -f 
+
+BEGIN {
+    RS=">"
+    FS="\n"
+    tmp_cnt=0
+    cnt=1
+    if(file_size == "" || output == "") {
+        print "TO USE: ./script.awk -v file_size=XXX -v output=YYY INPUT_FASTA\nWhere file_size is the number of sequences per file (maximum),\noutput is the prefix for output file names, and input_tsv is a\nmultifasta file you wish to divide.\n\n"
+        exit 1
+    }
+}
+
+NR > 1 {
+    if(tmp_cnt >= file_size) {
+        close(fnme)
+        cnt++
+        tmp_cnt=1
+        fnme=output"_"cnt".fasta"
+        gsub(/\n$/,"",$0)
+        printf ">"$0 > fnme
+    }
+    else {
+        fnme=output"_"cnt".fasta"
+        gsub(/\n$/,"",$0)
+        print ">"$0 > fnme
+        tmp_cnt++
+    }
+}
